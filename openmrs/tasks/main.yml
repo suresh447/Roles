@@ -1,2 +1,34 @@
 ---
-# tasks file for openmrs
+- hosts: ubuntu
+  become: yes
+  tasks:
+  - name: "Updating the packages"
+    apt:
+      update_cache: yes
+  - name: "installing git wget and tree"
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items:
+       - git
+       - wget
+       - tree
+  - name: "installing tomcat8"
+    apt:
+      name: tomcat8 
+      state: present
+  - name: "Starting the tomcat8 service"
+    service:
+      name: tomcat8  
+      state: started
+  - name: "Modifying the tomcat-users.xml file"
+    template:
+      src: tomcat-users.j2
+      dest:  /var/lib/tomcat8/conf/tomcat-users.xml
+    notify: restart tomcat8  
+    
+  handlers:
+  - name: restart tomcat8  
+    service: 
+      name: tomcat8  
+      state: restarted     
